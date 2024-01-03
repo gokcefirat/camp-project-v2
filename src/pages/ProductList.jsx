@@ -1,16 +1,26 @@
-import React, { useState, useEffect } from 'react'
-import { Icon, Label, Menu, Table } from 'semantic-ui-react'
-import ProductService from '../services/productService'
-import { Link } from 'react-router-dom'
+import React, { useState, useEffect } from "react";
+import { Button, Icon, Menu, Table } from "semantic-ui-react";
+import ProductService from "../services/productService";
+import { Link } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { addToCart } from "../store/actions/cartActions"
+import { toast } from "react-toastify";
 
 export default function ProductList() {
 
-  const [products, setProducts] = useState([])
+  const dispatch = useDispatch()
+
+  const [products, setProducts] = useState([]);
 
   useEffect(() => {
     let productService = new ProductService()
     productService.getProducts().then(result => setProducts(result.data.data))
-  })
+  }, [])
+
+  const handleAddToCard = (product) => {
+    dispatch(addToCart(product));
+    toast.success(`${product.productName} Sepete Eklendi `);
+  }
 
   return (
     <div>
@@ -22,6 +32,7 @@ export default function ProductList() {
             <Table.HeaderCell>Ürün Adi</Table.HeaderCell>
             <Table.HeaderCell>Stok Adedi</Table.HeaderCell>
             <Table.HeaderCell>Birim Fiyati</Table.HeaderCell>
+            <Table.HeaderCell></Table.HeaderCell>
           </Table.Row>
         </Table.Header>
 
@@ -31,10 +42,11 @@ export default function ProductList() {
 
               <Table.Row key={product.productId}>
                 <Table.Cell>{product.productId}</Table.Cell>
+                <Table.Cell><Link to={`/products/${product.productId}`}> {product.productName} </Link></Table.Cell>
                 <Table.Cell>{product.categoryId}</Table.Cell>
-                <Table.Cell><Link to={`/products/${product.productId}`}>{product.productName}</Link></Table.Cell>
-                <Table.Cell>{product.unitsInStock}</Table.Cell>
                 <Table.Cell>{product.unitPrice}</Table.Cell>
+                <Table.Cell>{product.unitsInStock}</Table.Cell>
+                <Table.Cell><Button onClick={() => handleAddToCard(product)}>Sepete Ekle</Button></Table.Cell>
               </Table.Row>
 
             ))
